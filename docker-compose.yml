@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  restate:
+    image: docker.restate.dev/restatedev/restate:1.3
+    container_name: restate_dev
+    ports:
+      - "9080:9080"   # workflow HTTP ingress
+      - "9070:9070"   # meta-API
+    healthcheck:
+      test: ["CMD","curl","-sf","http://localhost:9070/health"]
+      interval: 5s
+      retries: 12
+
+  cashi-fee-service:
+    build: .
+    container_name: cashi-fee-service
+    ports:
+      - "8080:8080"
+    environment:
+      - RESTATE_CLIENT_BASE_URI=http://restate:9080
+    depends_on:
+      restate:
+        condition: service_healthy
+
+  registrar:
+    image: curlimages/curl:7.85.0
+    depends_on:
+      restate:
+        condition: service_healthy
+      cashi-fee-service:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c '
+        echo "⏳ waiting for Restate meta to be healthy…" &&
+        until curl -sf http://restate:9070/health; do sleep 2; done &&
+        echo "✅ registering workflow…" &&
+        curl -sf http://restate:9070/deployments \
+          --json '"'"'{"uri":"http://host.docker.internal:9080"}'"'"' &&
+        echo "🎉 done."
+      '
+    restart: "no"
