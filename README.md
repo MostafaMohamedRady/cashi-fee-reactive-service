@@ -29,7 +29,7 @@ sequenceDiagram
         participant TransactionWorkflow (Restate)
 
         User->>API: POST /v2/transaction/fee {amount: 1000, type: "Mobile Top Up"}
-        TransactionController->>TransactionService
+        TransactionController->>TransactionService: initTransaction(transaction)
         TransactionService->>TransactionService: validateAmount(transaction.amount)
         TransactionService->>TransactionService: validateState(transaction.state)
         TransactionService->>TransactionWorkflow: Start workflow (Restate)
@@ -119,8 +119,6 @@ $ ./gradlew bootRun
 ```bash
 # Register the service
 $ curl localhost:9070/deployments --json '{"uri": "http://host.docker.internal:9080"}'
-
-![restate-register.png](src%2Fmain%2Fresources%2Frestate-register.png)
 ```
 ![restate-register.png](src%2Fmain%2Fresources%2Frestate-register.png)
 
