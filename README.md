@@ -19,6 +19,9 @@ This project is a solution to the Cashi Technology Challenge. It implements a RE
 - Docker
 - Gradle
 
+## ComponentDiagram
+![componentDiagram.png](src%2Fmain%2Fresources%2FcomponentDiagram.png)
+
 ## sequenceDiagram
 
 ```mermaid
