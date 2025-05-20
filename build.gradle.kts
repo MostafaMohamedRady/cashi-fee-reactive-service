@@ -32,7 +32,8 @@ dependencies {
 	// Restate SDK
 	implementation("dev.restate:sdk-spring-boot-kotlin-starter:$restateVersion")
 
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+	implementation("io.r2dbc:r2dbc-h2")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
