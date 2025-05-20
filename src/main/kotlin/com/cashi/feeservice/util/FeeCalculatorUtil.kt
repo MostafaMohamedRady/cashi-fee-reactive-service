@@ -1,4 +1,4 @@
-package com.cashi.feeservice.service
+package com.cashi.feeservice.util
 
 import com.cashi.feeservice.dto.TransactionRequest
 import com.cashi.feeservice.dto.TransactionResponse

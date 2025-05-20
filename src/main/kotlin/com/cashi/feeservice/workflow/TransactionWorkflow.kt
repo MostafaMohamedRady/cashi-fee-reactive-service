@@ -3,9 +3,9 @@ package com.cashi.feeservice.workflow
 import com.cashi.feeservice.dto.TransactionRequest
 import com.cashi.feeservice.dto.TransactionResponse
 import com.cashi.feeservice.enum.TransactionStatus
-import com.cashi.feeservice.service.calculateFee
-import com.cashi.feeservice.service.charge
-import com.cashi.feeservice.service.record
+import com.cashi.feeservice.util.calculateFee
+import com.cashi.feeservice.util.charge
+import com.cashi.feeservice.util.record
 import dev.restate.sdk.annotation.Workflow
 import dev.restate.sdk.common.TerminalException
 import dev.restate.sdk.kotlin.WorkflowContext
