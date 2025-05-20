@@ -28,7 +28,7 @@ sequenceDiagram
         participant TransactionService
         participant TransactionWorkflow (Restate)
 
-        User->>API: POST /v2/transaction/fee {amount: 1000, type: "Mobile Top Up"}
+        User->>TransactionController: POST /v2/transaction/fee {amount: 1000, type: "Mobile Top Up"}
         TransactionController->>TransactionService: initTransaction(transaction)
         TransactionService->>TransactionService: validateAmount(transaction.amount)
         TransactionService->>TransactionService: validateState(transaction.state)
