@@ -5,7 +5,7 @@ This project is a solution to the Cashi Technology Challenge. It implements a RE
 ## 🚀 Technologies Used
 ```
 - Kotlin
-- Spring Boot 3
+- Spring Boot webflux
 - Restate.dev (workflow engine)
 - REST API (OpenAPI / Swagger)
 - JUnit 5, kotest
@@ -24,24 +24,23 @@ This project is a solution to the Cashi Technology Challenge. It implements a RE
 ```mermaid
 sequenceDiagram
         participant User
-        participant API
-        participant Transaction (Restate)
-        participant FeeCalculatorService
-        participant Database
+        participant TransactionController
+        participant TransactionService
+        participant TransactionWorkflow (Restate)
 
-        User->>API: POST /transaction/fee {amount: 1000, type: "Mobile Top Up"}
-        API->>Transaction: Start workflow (Restate)
-        Transaction->>FeeCalculatorService: calculateFee(transaction)
-        FeeCalculatorService->>FeeCalculatorService: validateRequest
-        FeeCalculatorService-->>Transaction: {fee: 1.5, rate: 0.0015}
-        Transaction->>FeeCalculatorService: recordFeeCalculation(transaction)
-        FeeCalculatorService->>Database: save(transaction + fee)
-        Transaction-->>API: OK
-        API-->>User: Response {fee: 1.5, ...}
+        User->>API: POST /v2/transaction/fee {amount: 1000, type: "Mobile Top Up"}
+        TransactionController->>TransactionService
+        TransactionService->>TransactionService: validateAmount(transaction.amount)
+        TransactionService->>TransactionService: validateState(transaction.state)
+        TransactionService->>TransactionWorkflow: Start workflow (Restate)
+        TransactionWorkflow->>TransactionWorkflow: calculateFee(transaction)
+        TransactionWorkflow->>TransactionWorkflow: charge(transaction)
+        TransactionWorkflow-->>TransactionWorkflow: record(transaction)
+        TransactionWorkflow-->>User: Response {fee: 1.5, ...}
 ```
 
 ```dtd
-Client POST /transaction/fee --> FeesService (HTTP handler)
+Client POST /v2/transaction/fee --> FeesService (HTTP handler)
    └─> ctx.startWorkflow("fees", transactionId, request)
           ├─> FeesWorkflow.run(...)
           │     ├─> ctx.runBlock { calculate fee }
@@ -78,9 +77,9 @@ fee-service/
     │   │               ├── repository
     │   │               │   └── TransactionFeeRepository.kt
     │   │               ├── service
-    │   │               │   └── FeeCalculatorService.kt
+    │   │               │   └── TransactionService.kt
     │   │               ├── workflow
-    │   │               │   └── Transaction.kt
+    │   │               │   └── TransactionWorkflow.kt
     │   │               └── validator
     │   │                   └── TransactionValidator.kt
     │   └── resources
@@ -109,10 +108,6 @@ $ docker run --name restate_dev --rm -p 8080:8080 -p 9070:9070 -p 9071:9071 \
 --add-host=host.docker.internal:host-gateway docker.restate.dev/restatedev/restate:1.3
 ```
 ```bash
-# Register the service
-$ curl localhost:9070/deployments --json '{"uri": "http://host.docker.internal:9080"}'
-```
-```bash
 # Build with gradle
 $ ./gradlew clean build
 ```
@@ -120,6 +115,15 @@ $ ./gradlew clean build
 # Run locally
 $ ./gradlew bootRun
 ```
+
+```bash
+# Register the service
+$ curl localhost:9070/deployments --json '{"uri": "http://host.docker.internal:9080"}'
+
+![restate-register.png](src%2Fmain%2Fresources%2Frestate-register.png)
+```
+![restate-register.png](src%2Fmain%2Fresources%2Frestate-register.png)
+
 ```bash
 #Send a request to the service
 $ curl --location --request POST 'http://127.0.0.1:8080/Transaction/fee' \
@@ -136,6 +140,7 @@ $ curl --location --request POST 'http://127.0.0.1:8080/Transaction/fee' \
   "createdAt": "2023-08-30T15:42:17.610059"
 }'
 ```
+
 ### Docker
 ```bash
 # Run with Docker
@@ -170,6 +175,9 @@ Response:
   "description": "Standard fee rate of 0.15%"
 }
 ```
+![postman-request.png](src%2Fmain%2Fresources%2Fpostman-request.png)
+
+![restate-state.png](src%2Fmain%2Fresources%2Frestate-state.png)
 
 ## 🌐 Swagger Docs
 ```
